@@ -36,7 +36,7 @@ const c = @import("c.zig").c;
 const version = @import("version.zig");
 const inspector = @import("inspector.zig");
 const key = @import("key.zig");
-const winproto = @import("winproto.zig");
+const winprotopkg = @import("winproto.zig");
 const testing = std.testing;
 
 const log = std.log.scoped(.gtk);
@@ -50,7 +50,7 @@ app: *c.GtkApplication,
 ctx: *c.GMainContext,
 
 /// State and logic for the underlying windowing protocol.
-winproto: winproto.App,
+winproto: winprotopkg.App,
 
 /// True if the app was launched with single instance mode.
 single_instance: bool,
@@ -428,7 +428,7 @@ pub fn init(core_app: *CoreApp, opts: Options) !App {
     }
 
     // Setup our windowing protocol logic
-    var winproto_app = try winproto.App.init(
+    var winproto_app = try winprotopkg.App.init(
         core_app.alloc,
         display,
         app_id,

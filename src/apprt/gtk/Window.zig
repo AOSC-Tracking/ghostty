@@ -25,7 +25,7 @@ const gtk_key = @import("key.zig");
 const Notebook = @import("notebook.zig").Notebook;
 const HeaderBar = @import("headerbar.zig").HeaderBar;
 const version = @import("version.zig");
-const winproto = @import("winproto.zig");
+const winprotopkg = @import("winproto.zig");
 
 const log = std.log.scoped(.gtk);
 
@@ -57,7 +57,7 @@ toast_overlay: ?*c.GtkWidget,
 adw_tab_overview_focus_timer: ?c.guint = null,
 
 /// State and logic for windowing protocol for a window.
-winproto: winproto.Window,
+winproto: winprotopkg.Window,
 
 pub fn create(alloc: Allocator, app: *App) !*Window {
     // Allocate a fixed pointer for our window. We try to minimize
@@ -618,7 +618,7 @@ fn gtkRealize(v: *c.GtkWindow, ud: ?*anyopaque) callconv(.C) bool {
     const self = userdataSelf(ud.?);
 
     // Initialize our window protocol logic
-    if (winproto.Window.init(
+    if (winprotopkg.Window.init(
         self.app.core_app.alloc,
         &self.app.winproto,
         v,

@@ -7,7 +7,7 @@ const builtin = @import("builtin");
 
 const apprt = @import("../apprt.zig");
 const font = @import("../font/main.zig");
-const renderer = @import("../renderer.zig");
+const rendererpkg = @import("../renderer.zig");
 const Command = @import("../Command.zig");
 const WasmTarget = @import("../os/wasm/target.zig").Target;
 
@@ -28,7 +28,7 @@ wasm_target: WasmTarget,
 
 /// Comptime interfaces
 app_runtime: apprt.Runtime = .none,
-renderer: renderer.Impl = .opengl,
+renderer: rendererpkg.Impl = .opengl,
 font_backend: font.Backend = .freetype,
 
 /// Feature flags
@@ -126,10 +126,10 @@ pub fn init(b: *std.Build) !Config {
     ) orelse apprt.Runtime.default(target.result);
 
     config.renderer = b.option(
-        renderer.Impl,
+        rendererpkg.Impl,
         "renderer",
         "The app runtime to use. Not all values supported on all platforms.",
-    ) orelse renderer.Impl.default(target.result, wasm_target);
+    ) orelse rendererpkg.Impl.default(target.result, wasm_target);
 
     //---------------------------------------------------------------
     // Feature Flags
@@ -341,7 +341,7 @@ pub fn init(b: *std.Build) !Config {
         bool,
         "emit-xcframework",
         "Build and install the xcframework for the macOS library.",
-    ) orelse builtin.target.isDarwin() and
+    ) orelse builtin.target.os.tag.isDarwin() and
         target.result.os.tag == .macos and
         config.app_runtime == .none and
         (!config.emit_bench and
@@ -375,7 +375,7 @@ pub fn init(b: *std.Build) !Config {
                 .{
                     // If we're not on darwin we want to use whatever the
                     // default is via the system package mode
-                    .default = if (target.result.isDarwin()) false else null,
+                    .default = if (target.result.os.tag.isDarwin()) false else null,
                 },
             );
         }
@@ -405,7 +405,7 @@ pub fn addOptions(self: *const Config, step: *std.Build.Step.Options) !void {
     step.addOption(bool, "sentry", self.sentry);
     step.addOption(apprt.Runtime, "app_runtime", self.app_runtime);
     step.addOption(font.Backend, "font_backend", self.font_backend);
-    step.addOption(renderer.Impl, "renderer", self.renderer);
+    step.addOption(rendererpkg.Impl, "renderer", self.renderer);
     step.addOption(ExeEntrypoint, "exe_entrypoint", self.exe_entrypoint);
     step.addOption(WasmTarget, "wasm_target", self.wasm_target);
     step.addOption(bool, "wasm_shared", self.wasm_shared);
@@ -447,7 +447,7 @@ pub fn fromOptions() Config {
         .adwaita = options.adwaita,
         .app_runtime = std.meta.stringToEnum(apprt.Runtime, @tagName(options.app_runtime)).?,
         .font_backend = std.meta.stringToEnum(font.Backend, @tagName(options.font_backend)).?,
-        .renderer = std.meta.stringToEnum(renderer.Impl, @tagName(options.renderer)).?,
+        .renderer = std.meta.stringToEnum(rendererpkg.Impl, @tagName(options.renderer)).?,
         .exe_entrypoint = std.meta.stringToEnum(ExeEntrypoint, @tagName(options.exe_entrypoint)).?,
         .wasm_target = std.meta.stringToEnum(WasmTarget, @tagName(options.wasm_target)).?,
         .wasm_shared = options.wasm_shared,
